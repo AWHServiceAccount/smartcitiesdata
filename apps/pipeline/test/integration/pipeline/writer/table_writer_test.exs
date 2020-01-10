@@ -77,8 +77,9 @@ defmodule Pipeline.Writer.TableWriterTest do
     test "inserts records" do
       schema = [%{name: "one", type: "string"}, %{name: "two", type: "integer"}]
       dataset = TDG.create_dataset(%{technical: %{systemName: "foo__bar", schema: schema}})
+      schema_name = "schema_name"
 
-      TableWriter.init(table: dataset.technical.systemName, schema: schema)
+      TableWriter.init(table: dataset.technical.systemName, schema: schema, schema_name: schema_name)
 
       datum1 = TDG.create_data(%{dataset_id: dataset.id, payload: %{"one" => "hello", "two" => 42}})
       datum2 = TDG.create_data(%{dataset_id: dataset.id, payload: %{"one" => "goodbye", "two" => 9001}})
@@ -87,7 +88,7 @@ defmodule Pipeline.Writer.TableWriterTest do
 
       eventually(fn ->
         result =
-          "select * from foo__bar"
+          "select * from #{schema_name}.foo__bar"
           |> Prestige.execute()
           |> Prestige.prefetch()
 
