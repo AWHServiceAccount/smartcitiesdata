@@ -17,8 +17,10 @@ defmodule Pipeline.Writer.TableWriter do
   def init(args) do
     config = parse_args(args)
 
-    with {:ok, statement} <- Statement.create(config),
-         [[true]] <- execute(statement) do
+    with {:ok, schema_statement} <- Statement.create_schema(config),
+         [[true]] <- execute(schema_statement),
+         {:ok, table_statement} <- Statement.create(config),
+         [[true]] <- execute(table_statement) do
       Logger.info("Created #{config.table} table")
       :ok
     else
@@ -68,6 +70,7 @@ defmodule Pipeline.Writer.TableWriter do
 
   defp parse_args(args) do
     %{
+      schema_name: Keyword.get(args, :schema_name, "default"),
       table: Keyword.fetch!(args, :table),
       schema: Keyword.fetch!(args, :schema)
     }

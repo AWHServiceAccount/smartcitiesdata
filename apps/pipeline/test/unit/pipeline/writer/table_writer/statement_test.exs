@@ -4,7 +4,29 @@ defmodule Pipeline.Writer.TableWriter.StatementTest do
 
   alias Pipeline.Writer.TableWriter.Statement
 
+  describe "create_schema/1" do
+    @tag capture_log: true
+    test "creates schema if not exist" do
+      expected = ~s|CREATE SCHEMA IF NOT EXISTS schema_name|
+
+      assert {:ok, ^expected} = Statement.create_schema(%{schema_name: "schema_name"})
+    end
+  end
+
   describe "create/1" do
+    @tag capture_log: true
+    test "creates table in given schema" do
+      schema = [
+        %{name: "first_name", type: "string"}
+      ]
+
+      schema_name = "special_schema"
+
+      expected = ~s|CREATE TABLE IF NOT EXISTS special_schema.table_name ("first_name" varchar)|
+
+      assert {:ok, ^expected} = Statement.create(%{table: "table_name", schema: schema, schema_name: schema_name})
+    end
+
     @tag capture_log: true
     test "converts schema type value to proper presto type" do
       schema = [
@@ -16,7 +38,7 @@ defmodule Pipeline.Writer.TableWriter.StatementTest do
       ]
 
       expected =
-        ~s|CREATE TABLE IF NOT EXISTS table_name ("first_name" varchar, "height" bigint, "weight" double, "identifier" decimal, "payload" varchar)|
+        ~s|CREATE TABLE IF NOT EXISTS default.table_name ("first_name" varchar, "height" bigint, "weight" double, "identifier" decimal, "payload" varchar)|
 
       assert {:ok, ^expected} = Statement.create(%{table: "table_name", schema: schema})
     end
@@ -42,7 +64,7 @@ defmodule Pipeline.Writer.TableWriter.StatementTest do
       ]
 
       expected =
-        ~s|CREATE TABLE IF NOT EXISTS table_name ("spouse" row("first_name" varchar, "next_of_kin" row("first_name" varchar, "date_of_birth" date)))|
+        ~s|CREATE TABLE IF NOT EXISTS default.table_name ("spouse" row("first_name" varchar, "next_of_kin" row("first_name" varchar, "date_of_birth" date)))|
 
       assert {:ok, ^expected} = Statement.create(%{table: "table_name", schema: schema})
     end
@@ -53,7 +75,7 @@ defmodule Pipeline.Writer.TableWriter.StatementTest do
         %{name: "friend_names", type: "list", itemType: "string"}
       ]
 
-      expected = ~s|CREATE TABLE IF NOT EXISTS table_name ("friend_names" array(varchar))|
+      expected = ~s|CREATE TABLE IF NOT EXISTS default.table_name ("friend_names" array(varchar))|
       assert {:ok, ^expected} = Statement.create(%{table: "table_name", schema: schema})
     end
 
@@ -72,7 +94,7 @@ defmodule Pipeline.Writer.TableWriter.StatementTest do
       ]
 
       expected =
-        ~s|CREATE TABLE IF NOT EXISTS table_name ("friend_groups" array(row("first_name" varchar, "last_name" varchar)))|
+        ~s|CREATE TABLE IF NOT EXISTS default.table_name ("friend_groups" array(row("first_name" varchar, "last_name" varchar)))|
 
       assert {:ok, ^expected} = Statement.create(%{table: "table_name", schema: schema})
     end
@@ -92,8 +114,16 @@ defmodule Pipeline.Writer.TableWriter.StatementTest do
     end
 
     test "accepts a select statement to create table from" do
-      expected = "create table one__two as (select * from three__four)"
+      expected = "create table default.one__two as (select * from three__four)"
       assert {:ok, ^expected} = Statement.create(%{table: "one__two", as: "select * from three__four"})
+    end
+
+    test "select statement can be in given schema" do
+      schema_name = "special_schema"
+      expected = "create table #{schema_name}.one__two as (select * from three__four)"
+
+      assert {:ok, ^expected} =
+               Statement.create(%{table: "one__two", as: "select * from three__four", schema_name: schema_name})
     end
   end
 

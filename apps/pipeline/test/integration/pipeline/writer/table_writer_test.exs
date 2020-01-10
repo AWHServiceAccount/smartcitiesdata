@@ -9,6 +9,25 @@ defmodule Pipeline.Writer.TableWriterTest do
   import SmartCity.TestHelper, only: [eventually: 1]
 
   describe "init/1" do
+    test "creates the database schema" do
+      schema_name = "new_schema"
+      dataset = TDG.create_dataset(%{})
+
+      TableWriter.init(
+        table: dataset.technical.systemName,
+        schema: dataset.technical.schema,
+        schema_name: schema_name
+      )
+
+      result =
+        "show schemas like '#{schema_name}'"
+        |> Prestige.execute(rows_as_maps: true)
+        |> Prestige.prefetch()
+        |> length()
+
+      assert result > 0
+    end
+
     test "creates table with correct name and schema" do
       expected = [
         %{"Column" => "one", "Comment" => "", "Extra" => "", "Type" => "array(varchar)"},
@@ -23,12 +42,13 @@ defmodule Pipeline.Writer.TableWriterTest do
       ]
 
       dataset = TDG.create_dataset(%{technical: %{systemName: "org_name__dataset_name", schema: schema}})
+      schema_name = "different_schema"
 
-      TableWriter.init(table: dataset.technical.systemName, schema: dataset.technical.schema)
+      TableWriter.init(table: dataset.technical.systemName, schema: dataset.technical.schema, schema_name: schema_name)
 
       eventually(fn ->
         table =
-          "describe hive.default.org_name__dataset_name"
+          "describe hive.#{schema_name}.org_name__dataset_name"
           |> Prestige.execute(rows_as_maps: true)
           |> Prestige.prefetch()
 

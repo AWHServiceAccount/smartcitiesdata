@@ -15,8 +15,8 @@ defmodule Pipeline.Writer.TableWriter.Statement.Create do
     "timestamp" => "timestamp"
   }
 
-  def compose(name, schema) do
-    "CREATE TABLE IF NOT EXISTS #{name} (#{translate_columns(schema)})"
+  def compose(name, schema, schema_name) do
+    "CREATE TABLE IF NOT EXISTS #{schema_name}.#{name} (#{translate_columns(schema)})"
   end
 
   defp translate_columns(cols) do
