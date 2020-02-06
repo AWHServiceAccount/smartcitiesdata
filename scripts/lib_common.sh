@@ -4,9 +4,8 @@ function app_does_not_need_built {
   local -r app=${1}
   local -r commit_range=${2}
 
-  local -r apps=$(apps_needing_built "${commit_range}")
-
-  ! echo -e "${apps}" | grep -x "${app}" -q
+  ! apps_needing_built "${commit_range}" \
+    | grep -x "${app}" -q
 }
 
 function apps_needing_built {
@@ -44,16 +43,18 @@ function should_build_all {
 function apps_that_have_changed {
   local -r commit_range=${1}
 
-  elixir \
-    -r scripts/version_differ.exs \
-    -e "VersionDiffer.get_changed_apps(${commit_range:+\"${commit_range}\"}) |> Enum.join(\"\n\") |> IO.puts()"
+  git diff --name-only ${commit_range} -- apps/ \
+    | sed 's%apps/%%g' \
+    | cut -d/ -f 1 \
+    | sort \
+    | uniq
 }
 
 function all_apps {
-  find apps -name mix.exs | awk -F/ '{print $2}'
+  find apps -maxdepth 2 -name mix.exs | awk -F/ '{print $2}'
 }
 
 function all_publishable_apps {
-  find apps -name Dockerfile | awk -F/ '{print $2}'
+  find apps -maxdepth 2 -name Dockerfile | awk -F/ '{print $2}'
 }
 
