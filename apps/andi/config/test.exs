@@ -1,10 +1,8 @@
 use Mix.Config
 
-# We don't run a server during test. If one is required,
-# you can enable the server option below.
 config :andi, AndiWeb.Endpoint,
   http: [port: 4002],
-  server: false,
+  server: true, #start server while running tests
   live_view: [
     signing_salt: "CHANGEME?"
   ]

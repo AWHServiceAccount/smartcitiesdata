@@ -18,7 +18,7 @@ config :andi,
   kafka_broker: endpoint
 
 config :andi, AndiWeb.Endpoint,
-  http: [port: 4000],
+  http: [port: 4040],
   server: true,
   check_origin: false
 

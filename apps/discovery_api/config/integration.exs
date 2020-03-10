@@ -9,7 +9,7 @@ config :discovery_api, DiscoveryApiWeb.Endpoint, url: [scheme: "https", host: "d
 config :discovery_api,
   allowed_origins: ["integrationtests.example.com", "localhost:9001"],
   divo: "test/integration/docker-compose.yaml",
-  divo_wait: [dwell: 2000, max_tries: 35],
+  divo_wait: [dwell: 4000, max_tries: 45],
   ldap_user: [cn: "admin"],
   ldap_pass: "admin",
   hosted_bucket: "kdp-cloud-storage",

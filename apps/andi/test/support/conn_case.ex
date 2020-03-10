@@ -14,6 +14,7 @@ defmodule AndiWeb.ConnCase do
   """
 
   use ExUnit.CaseTemplate
+  use Hound.Helpers #use all hound functions - navigate_to, find_element, etc
 
   using do
     quote do
@@ -23,6 +24,8 @@ defmodule AndiWeb.ConnCase do
 
       # The default endpoint for testing
       @endpoint AndiWeb.Endpoint
+
+      hound_session() # Hound function that creates browser session
     end
   end
 
