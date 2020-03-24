@@ -12,4 +12,4 @@ fi
 
 docker rmi -f smartcitiesdata:build
 docker build -t smartcitiesdata:build .
-docker build -t smartcitiesdata/$app:$version apps/$app
+docker build -t awhdockerhub/$app:$version apps/$app
