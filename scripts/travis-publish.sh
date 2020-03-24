@@ -14,7 +14,7 @@ if [[ ! -z "$TRAVIS_TAG" ]]; then
         exit 1
     fi
 
-    echo "Building smartcitiesdata/${app:?COULD NOT DETERMINE APP}:${vsn:?COULD NOT DETERMINE VERSION}"
+    echo "Building awhdockerhub/${app:?COULD NOT DETERMINE APP}:${vsn:?COULD NOT DETERMINE VERSION}"
 
     ./scripts/build.sh $app $vsn
     ./scripts/publish.sh $app $vsn
