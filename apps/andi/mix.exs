@@ -56,6 +56,7 @@ defmodule Andi.MixProject do
       {:phoenix_pubsub, "~> 1.1"},
       {:placebo, "~> 1.2", only: [:dev, :test, :integration]},
       {:plug_cowboy, "~> 2.1"},
+      {:postgrex, "~> 0.15.1"},
       {:simply_validate, ">= 0.2.0"},
       {:smart_city, "~> 3.0"},
       {:tesla, "~> 1.3"},
